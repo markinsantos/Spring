@@ -1,7 +1,7 @@
 package com.example.demo.config;
 
-import java.util.Arrays;
 import java.time.Instant;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -9,10 +9,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import com.example.demo.entitys.Categoria;
+import com.example.demo.entitys.ItensPedido;
+import com.example.demo.entitys.Pagamento;
 import com.example.demo.entitys.Pedido;
 import com.example.demo.entitys.Produto;
 import com.example.demo.entitys.User;
 import com.example.demo.entitys.enums.PedidoStatus;
+import com.example.demo.repositories.IntensPedidoRepository;
 import com.example.demo.repositories.PedidoRepository;
 import com.example.demo.repositories.ProdutoRepository;
 import com.example.demo.repositories.UserRepository;
@@ -34,6 +37,9 @@ public class TestConfig implements CommandLineRunner{
 	@Autowired
 	private ProdutoRepository produtoRepository;
 	
+	@Autowired
+	private IntensPedidoRepository itenPedidoRepository;
+	
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -41,9 +47,11 @@ public class TestConfig implements CommandLineRunner{
 		User u1 = new User(null, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 		User u2 = new User(null, "Alex Green", "alex@gmail.com", "977777777", "123456");
 		
-		Pedido o1 = new Pedido(null, Instant.parse("2019-06-20T19:53:07Z"),PedidoStatus.AGUARDANDO_PAGAMENTO, u1);
+		Pedido o1 = new Pedido(null, Instant.parse("2019-06-20T19:53:07Z"),PedidoStatus.PAGO, u1);
 		Pedido o2 = new Pedido(null, Instant.parse("2019-07-21T03:42:10Z"), PedidoStatus.DELIVERED,u2);
 		Pedido o3 = new Pedido(null, Instant.parse("2019-07-22T15:21:22Z"), PedidoStatus.CANCELADO,u1);
+		
+		
 		
 		Categoria cat1 = new Categoria(null, "Electronics");
 		Categoria cat2 = new Categoria(null, "Books");
@@ -60,9 +68,28 @@ public class TestConfig implements CommandLineRunner{
 		Crepositiry.saveAll(Arrays.asList(cat1,cat2,cat3));
 		produtoRepository.saveAll(Arrays.asList(p1,p2,p3,p4,p5));
 		
+		p1.getCategorias().add(cat2);
+		p2.getCategorias().add(cat1);
+		p2.getCategorias().add(cat3);
+		p3.getCategorias().add(cat3);
+		p4.getCategorias().add(cat3);
+		p5.getCategorias().add(cat2);
+
+		produtoRepository.saveAll(Arrays.asList(p1,p2,p3,p4,p5));
 		
+		ItensPedido oi1 = new ItensPedido(o1, p1, 2, p1.getPreco());
+		ItensPedido oi2 = new ItensPedido(o1, p3, 1, p3.getPreco());
+		ItensPedido oi3 = new ItensPedido(o2, p3, 2, p3.getPreco());
+		ItensPedido oi4 = new ItensPedido(o3, p5, 2, p5.getPreco());
 		
 				
+		itenPedidoRepository.saveAll(Arrays.asList(oi1,oi2,oi3,oi4));
+		
+		Pagamento pag1 = new Pagamento(null,Instant.parse("2019-06-20T21:53:07Z"),o1);
+		o1.setPagamento(pag1);
+		
+		Prepositiry.save(o1);
+		
 	}
 	
 	
